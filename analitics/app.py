@@ -186,16 +186,16 @@ if __name__ == '__main__':
 	for r in db_response:
 		print(r)
 
-	# 4 what are the top 10 userers with the most ratings?
+	# 4 what are the top 5 userers with the most ratings?
 	db_response = db.execute("""
 		SELECT userId, COUNT(userId) as num_of_ratings
 	    FROM ratings
 	    GROUP BY userId
 	    ORDER BY num_of_ratings DESC
-	    LIMIT    10;
+	    LIMIT    5;
 		"""
 	)
-	print('4 what are the top 10 userers with the most ratings?')
+	print('4 what are the top 5 userers with the most ratings?')
 	for r in db_response:
 		print(r)
 
