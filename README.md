@@ -1,17 +1,17 @@
 # Analitics and DB with Docker-compose
 
-This repository contains a Docker setup of two containers: analitics, database.
-The goal is to create a system for loading and querying the movieLens [data](http://files.grouplens.org/datasets/movielens/ml-latest-small.zip "Zip file link") that will allow us to anser 6 questions: 
+This repository contains a Docker setup of two containers: analitics and database.
+The goal is to create a system for loading and querying the movieLens [data](http://files.grouplens.org/datasets/movielens/ml-latest-small.zip "Zip file link") that will allow us to answer 6 questions: 
 
 1. how many movies are there in the dataset?
 
 2. what is the most common genre? 
 
-3. what are to top 10 highest rated movies?
+3. what are the top 10 highest rated movies?
 
-4. what are the top 5 userers with the most ratings?
+4. what are the top 5 userers with the highest number of ratings?
 
-5. what are the newst and the oldest ratings?
+5. what is the oldest and what is the newset rating?
 
 6. find all movies relesed in 1990
 
@@ -30,6 +30,8 @@ git clone https://github.com/franekantoni/docker-python-sql.git
 cd docker-python-sql
 docker-compose up --build
 ```
+
+The awsers will get printed in your console.
 
 ### Structure
 
