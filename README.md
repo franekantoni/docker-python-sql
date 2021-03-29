@@ -130,12 +130,12 @@ To save the data to the database we we need to:
 * split the second value of each row into a proper title and a year.
 * split the third value of each row into a list of genres.
 
-	```python
+```python
 	process_ratings(file_path):
 	"""
 	Saves (userid, movieid, rating, timestamp) to ratings table
 	"""
-	```
+```
 Structure of data in ratings.csv file allows to transfer the data with ```COPY``` command
 
 
