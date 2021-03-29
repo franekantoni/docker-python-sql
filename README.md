@@ -1,16 +1,7 @@
 # Analitics and DB with Docker-compose
 
 This repository contains a Docker setup of two containers: analitics, database.
-The goal is to create a system for loading and querying the movieLens data. 
-
-### Requirements
-
-* [Docker](https://www.docker.com/ "Docker homepage")
-* [Docker-Compose](https://docs.docker.com/compose/ "Docker-Compose docs")
-
-### Quick start
-
-There are 6 questions we need to answer based on the [ml-latest-small.zip](http://files.grouplens.org/datasets/movielens/ml-latest-small.zip "Zip file link") data set:
+The goal is to create a system for loading and querying the movieLens [data](http://files.grouplens.org/datasets/movielens/ml-latest-small.zip "Zip file link") that will allow us to anser 6 questions: 
 
 1. how many movies are there in the dataset?
 
@@ -24,9 +15,21 @@ There are 6 questions we need to answer based on the [ml-latest-small.zip](http:
 
 6. find all movies relesed in 1990
 
+
+### Requirements
+
+* [Docker](https://www.docker.com/ "Docker homepage")
+* [Docker-Compose](https://docs.docker.com/compose/ "Docker-Compose docs")
+
+### Quick start
+
 To get the answers, start Docker Desktop, go to the root directory of the project and run
 
-```docker-compose up --build```
+```
+git clone https://github.com/franekantoni/docker-python-sql.git
+cd docker-python-sql
+docker-compose up --build
+```
 
 ### Structure
 
