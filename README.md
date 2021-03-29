@@ -102,7 +102,7 @@ To answer "Find all movies relesed in 1990" we need to have a separate year colu
 app.py manages loading the data from the remote server, populating the DB and provides answers to the 6 questions.
 The script connects to the DB running in separate container with sqlalchemy library.
 
-* Downloading
+#### Downloading
 
 	```python
 	download_data(zip_url, dir_name, file_names):
@@ -115,7 +115,7 @@ The script connects to the DB running in separate container with sqlalchemy libr
 	```
 
 
-* Populating DB
+#### Populating DB
 
 	```python
 	process_movies(file_path):
@@ -145,7 +145,7 @@ The ```CLEAR_AND_LOAD``` constant controlls whether the DB tables should be clea
 CSV processing and DB repopulating is the most resource and time consuming porcess.
 It is advised to change the ```CLEAR_AND_LOAD``` to ```False``` after the initial run of the script.
 
-* Answers
+#### Answers
 
 1. how many movies are there in the dataset?
 
