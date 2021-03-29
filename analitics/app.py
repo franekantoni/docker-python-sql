@@ -146,31 +146,47 @@ if __name__ == '__main__':
 		load_movies(f"tmp/{DIR_NAME}/{movies_file}")
 		load_ratings(f"tmp/{DIR_NAME}/{ratings_file}")
 
+
+
+
+
+
 		# 1 how many movies are there in the dataset?
 		db_response = next(DB.execute("""
 			SELECT COUNT(*)
 			FROM movies
 			"""
 		))
-		print('how many movies are there in the dataset?', db_response)
+
+		print('1) how many movies are there in the dataset?')
+		print('-', db_response[0], '\n')
+
+
+
+
+
 		
 		# 2 what is the most common genre? 
-		db_response = DB.execute("""
+		genre, num = next(DB.execute("""
 			SELECT genres.genre, COUNT(movie_genre.genreId) AS value_occurrence 
 		    FROM movie_genre
 		    INNER JOIN genres 
 		    ON movie_genre.genreId = genres.genreId
 		    GROUP BY movie_genre.genreId, genres.genre
 		    ORDER BY value_occurrence DESC
-		    LIMIT    10;
+		    LIMIT    1;
 			"""
-		)
-		for r in db_response:
-			genre, num = r
-			print(f"there are {num} of {genre} movies")
+		))
+		print('2) what is the most common genre?')
+		print(f'- {genre}, there are {num} movies of this genre in the dataset', '\n')
+
+
+
+
+
 
 		# 3 what are to top 10 highest rated movies?
-
+		print('3) what are to top 10 highest rated movies?')
 		#highest average
 		#tends to favour movies with a low number of ratings
 		db_response = DB.execute("""
@@ -183,23 +199,34 @@ if __name__ == '__main__':
 		    LIMIT    10;
 			"""
 		)
+		print('movies with highest rating average:')
 		for r in db_response:
-			print(r)
+			title, avg_rating = r
+			print(f'title: {title}, rating: {avg_rating}')
+		print('\n')
 
 		#highest average with condition
+		n = 10
 		db_response = DB.execute("""
 			SELECT movies.title, AVG(ratings.rating) AS avg_movie_rating
 		    FROM ratings
 		    INNER JOIN movies 
 		    ON ratings.movieId = movies.movieId
 		    GROUP BY movies.title
-		    HAVING COUNT(movies.title) > 10
+		    HAVING COUNT(movies.title) > {}
 		    ORDER BY avg_movie_rating DESC
 		    LIMIT    10;
-			"""
+			""".format(n)
 		)
+		print(f"movies with highest rating average, haing at least {n} ratings:")
 		for r in db_response:
-			print(r)
+			title, avg_rating = r
+			print(f'title: {title}, rating: {avg_rating}')
+		print('\n')
+
+
+
+
 
 		# 4 what are the top 5 userers with the most ratings?
 		db_response = DB.execute("""
@@ -210,12 +237,18 @@ if __name__ == '__main__':
 		    LIMIT    5;
 			"""
 		)
-		print('4 what are the top 5 userers with the most ratings?')
+		print('4) what are the top 5 userers with the most ratings?')
 		for r in db_response:
-			print(r)
+			user_id, num_ratings = r
+			print(f'user id: {user_id}, number of ratings: {num_ratings}')
+		print('\n')
+
+
+
+
 
 		# 5 what are the newst and the oldest ratings?
-
+		print('5) what are the newst and the oldest ratings?')
 		#newest
 		db_response = next(DB.execute("""
 			SELECT *
@@ -232,17 +265,23 @@ if __name__ == '__main__':
 		    WHERE timestamp = (SELECT MIN(timestamp) FROM ratings)
 			"""
 		))
-		print(f'oldest rating: {db_response}')
+		print(f'oldest rating: {db_response}', '\n')
+
+
+
+
+
 
 		# 6 find all movies relesed in 1990
+		print('6) find all movies relesed in 1990:')
 		db_response = DB.execute("""
-			SELECT *
+			SELECT title
 		    FROM movies
 		    WHERE year = 1990
 			"""
 		)
 		for movie in db_response:
-			print(movie)
+			print(movie[0])
 
 	
 
