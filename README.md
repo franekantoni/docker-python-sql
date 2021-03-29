@@ -41,20 +41,74 @@ To get the answers, start Docker Desktop, go to the root directory of the projec
 	* requirements.txt - list of packages to be installed at container start 
 	* app.py - the main app
 
-#### create_fixtures.sql
+#### database
 
-Declares schemas for tables:
+why PostgreSQL?
+
+* fully open-source - free
+* well supported by the community
+
+Tables:
 
 * movies
+	* movieId
+	* title
+	* year
+
 * ratings
+	* userId
+	* movieId
+	* rating
+	* timestamp
+
 * genres
-* movie_genre
+	* genreId
+	* genre
 
-#### app.py
+* movie_genre - models many-to-many relationship of movies and genres
+	* movieId
+	* genreId
 
-* downloads the data
-* loads the data into db
-* runs queries on db
+#### analitics
+
+app.py manages loading the data from the remote server, populating the database and querying.
+
+* Downloading
+
+	```
+	download_data(zip_url, dir_name, file_names):
+	"""
+	Downloads zip from remote url,
+	saves csv files to tmp/
+	returns True if all file_names were found in the unziped folder
+	returns False if one or more of file_names were not found
+	"""
+	```
+
+* Populating DB
+
+	```
+	process_movies(file_path):
+	"""
+	Saves:
+	(movieId, title, year) to movies table,
+	(genre) to genres table,
+	(movieId, genreId) relation to movie_genre table
+	"""
+	```
+
+
+	```
+	process_ratings(file_path):
+	"""
+	Saves (userid, movieid, rating, timestamp) to ratings table
+	"""
+	```
+
+* Querying
+	
+	
+
 
 
 
