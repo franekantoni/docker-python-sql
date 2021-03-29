@@ -61,7 +61,7 @@ ratings.csv and movies.csv files have all the information needed to answer the q
 * movies structure:
 	movieId | title | genres
 	--- | --- | ---
-	1 | Toy Story (1995) | Adventure|Animation|Children|Comedy|Fantasy
+	1 | Toy Story (1995) | `Adventure|Animation|Children|Comedy|Fantasy`
 
 #### database
 
