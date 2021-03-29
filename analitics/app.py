@@ -131,7 +131,7 @@ if __name__ == '__main__':
 	# load_movies()
 	# load_ratings()
 
-	#how many movies are there in the dataset?
+	# 1 how many movies are there in the dataset?
 	db_response = next(db.execute("""
 		SELECT COUNT(*)
 		FROM movies
@@ -139,7 +139,7 @@ if __name__ == '__main__':
 	))
 	print('how many movies are there in the dataset?', db_response)
 	
-	#what is the most common genre? 
+	# 2 what is the most common genre? 
 	db_response = db.execute("""
 		SELECT genres.genre, COUNT(movie_genre.genreId) AS value_occurrence 
 	    FROM movie_genre
@@ -154,7 +154,7 @@ if __name__ == '__main__':
 		genre, num = r
 		print(f"there are {num} of {genre} movies")
 
-	#what are to top 10 highest rated movies?
+	# 3 what are to top 10 highest rated movies?
 
 	#highest average
 	#tends to favour movies with a low number of ratings
@@ -169,7 +169,6 @@ if __name__ == '__main__':
 		"""
 	)
 	for r in db_response:
-		# genre, num = r
 		print(r)
 
 	#highest average with condition
@@ -185,10 +184,23 @@ if __name__ == '__main__':
 		"""
 	)
 	for r in db_response:
-		# genre, num = r
 		print(r)
 
-	
+	# 4 what are the top 10 userers with the most ratings?
+	db_response = db.execute("""
+		SELECT userId, COUNT(userId) as num_of_ratings
+	    FROM ratings
+	    GROUP BY userId
+	    ORDER BY num_of_ratings DESC
+	    LIMIT    10;
+		"""
+	)
+	print('4 what are the top 10 userers with the most ratings?')
+	for r in db_response:
+		print(r)
+
+
+
 
 	
 
