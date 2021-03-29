@@ -167,6 +167,8 @@ It is advised to change the ```CLEAR_AND_LOAD``` to ```False``` after the initia
 	```
 
 3. what are to top 10 highest rated movies?
+	
+
 	This is an ambivalent question to some extend. There is not metric provided, so the most obvious one is the average of all the ratings a movie got:
 	```SQL
 	SELECT movies.title, AVG(ratings.rating) AS avg_movie_rating
