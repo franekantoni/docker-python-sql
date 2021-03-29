@@ -3,35 +3,25 @@ import random
 import csv
 import re
 
-from sqlalchemy import create_engine, insert, MetaData, Table
+from sqlalchemy import create_engine
 
-db_name = 'database'
-db_user = 'username'
-db_pass = 'secret'
-db_host = 'db'
-db_port = '5432'
+DB_NAME = 'database'
+DB_USER = 'username'
+DB_PASS = 'secret'
+DB_HOST = 'db'
+DB_PORT = '5432'
 
-# Connecto to the database
-db_string = 'postgresql://{}:{}@{}:{}/{}'.format(db_user, db_pass, db_host, db_port, db_name)
-db = create_engine(db_string)
-metadata = MetaData(bind=None)
+# Connect to the database
+DB_STRING = 'postgresql://{}:{}@{}:{}/{}'.format(DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME)
+DB = create_engine(DB_STRING)
 
-MOVIES_TABLE = Table(
-    'movies', 
-    metadata, 
-    autoload=True, 
-    autoload_with=db
-)
-
-from sqlalchemy.engine import reflection
-insp = reflection.Inspector.from_engine(db)
-print(insp.get_columns(MOVIES_TABLE))
-
+ZIP_URL = 'http://files.grouplens.org/datasets/movielens/ml-latest-small.zip'
+DIR_NAME = 'ml-latest-small'
 
 
 def add_new_genre(genre_name):
 	# Insert a new number into the 'numbers' table.
-	db.execute("""
+	DB.execute("""
 		INSERT INTO genres (genre)  
 		VALUES ('{}');
 		""".format(genre_name)
@@ -39,7 +29,7 @@ def add_new_genre(genre_name):
 
 def clear_tables(table_names):
 	for table_name in table_names:
-		db.execute("""
+		DB.execute("""
 			TRUNCATE TABLE {} CASCADE
 			""".format(table_name)
 		)
@@ -47,7 +37,7 @@ def clear_tables(table_names):
 def get_last_row():
 	# Retrieve the last number inserted inside the 'numbers'
 
-	result_set = db.execute("""
+	result_set = DB.execute("""
 		SELECT genre
 		FROM genres 
 		WHERE genreId >= (SELECT max(genreId) FROM genres)
@@ -57,13 +47,15 @@ def get_last_row():
 	for (r) in result_set:  
 		return r[0]
 
-def load_ratings():
-	connection = db.raw_connection()
+def load_ratings(file_path):
+	print('loading ratings into db...')
+	connection = DB.raw_connection()
 	cursor = connection.cursor()
-	with open('ratings.csv', 'r') as f:
+	with open(file_path, 'r') as f:
 		command = 'COPY ratings(userid, movieid, rating, timestamp) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
 		cursor.copy_expert(command, f)
 		connection.commit()
+	print('ratings loaded.')
 
 def clean_title(title_date, pattern):
 	#should return one date
@@ -79,9 +71,10 @@ def clean_title(title_date, pattern):
 	return (title, int(year))
 
 
-def load_movies():
+def load_movies(file_path):
+	print('loading movies into db...')
 	genres_dict = {}
-	with open('movies.csv', 'r') as csvfile:
+	with open(file_path, 'r') as csvfile:
 
 		reader = csv.reader(csvfile)
 		next(reader, None)  # skip the headers
@@ -95,7 +88,7 @@ def load_movies():
 			genres = genres_.split('|')
 			
 			#save row to movies
-			db.execute("""
+			DB.execute("""
 				INSERT INTO movies (movieId, title, year)  
 				VALUES ({}, '{}', {});
 				""".format(movie_id, title.replace("'", " "), year)
@@ -105,7 +98,7 @@ def load_movies():
 			for genre in genres:
 
 				if not genres_dict.get(genre):
-					result = db.execute("""
+					result = DB.execute("""
 						INSERT INTO genres (genre)  
 						VALUES ('{}')
 						RETURNING genres.genreid;
@@ -114,120 +107,142 @@ def load_movies():
 					genre_id = next(result)[0]
 					genres_dict[genre] = genre_id
 
-				db.execute("""
+				DB.execute("""
 					INSERT INTO movie_genre (movieId, genreId)  
 					VALUES ({}, {});
 					""".format(movie_id, genres_dict[genre])
 				)
-			print('movie_id', movie_id)
+	print('movies loaded.')
+
+from io import BytesIO
+from urllib.request import urlopen
+from zipfile import ZipFile
+from os import listdir
+
+def download_data(zip_url, dir_name, file_names):
+	with urlopen(zip_url) as zipresp:
+		with ZipFile(BytesIO(zipresp.read())) as zfile:
+			zfile.extractall('tmp/')
+	if DIR_NAME in listdir('tmp/'):
+		if all([file_name in listdir('tmp/ml-latest-small') for file_name in file_names]):
+			return True
+	return False
 
 
 if __name__ == '__main__':
 
-	print('Application started')
+	movies_file = 'movies.csv'
+	ratings_file = 'ratings.csv'
 
-	# clear_tables(['ratings', 'movies', 'genres', 'movie_genre'])
+	is_data_downloaded = download_data(ZIP_URL, DIR_NAME, [movies_file, ratings_file])
 
-	# load_movies()
-	# load_ratings()
+	if not is_data_downloaded:
+		print('data was not downloaded.')
+	else:
+		print('data downloaded...')
 
-	# 1 how many movies are there in the dataset?
-	db_response = next(db.execute("""
-		SELECT COUNT(*)
-		FROM movies
-		"""
-	))
-	print('how many movies are there in the dataset?', db_response)
-	
-	# 2 what is the most common genre? 
-	db_response = db.execute("""
-		SELECT genres.genre, COUNT(movie_genre.genreId) AS value_occurrence 
-	    FROM movie_genre
-	    INNER JOIN genres 
-	    ON movie_genre.genreId = genres.genreId
-	    GROUP BY movie_genre.genreId, genres.genre
-	    ORDER BY value_occurrence DESC
-	    LIMIT    10;
-		"""
-	)
-	for r in db_response:
-		genre, num = r
-		print(f"there are {num} of {genre} movies")
+		clear_tables(['ratings', 'movies', 'genres', 'movie_genre'])
 
-	# 3 what are to top 10 highest rated movies?
+		load_movies(f"tmp/{DIR_NAME}/{movies_file}")
+		load_ratings(f"tmp/{DIR_NAME}/{ratings_file}")
 
-	#highest average
-	#tends to favour movies with a low number of ratings
-	db_response = db.execute("""
-		SELECT movies.title, AVG(ratings.rating) AS avg_movie_rating
-	    FROM ratings
-	    INNER JOIN movies 
-	    ON ratings.movieId = movies.movieId
-	    GROUP BY movies.title
-	    ORDER BY avg_movie_rating DESC
-	    LIMIT    10;
-		"""
-	)
-	for r in db_response:
-		print(r)
+		# 1 how many movies are there in the dataset?
+		db_response = next(DB.execute("""
+			SELECT COUNT(*)
+			FROM movies
+			"""
+		))
+		print('how many movies are there in the dataset?', db_response)
+		
+		# 2 what is the most common genre? 
+		db_response = DB.execute("""
+			SELECT genres.genre, COUNT(movie_genre.genreId) AS value_occurrence 
+		    FROM movie_genre
+		    INNER JOIN genres 
+		    ON movie_genre.genreId = genres.genreId
+		    GROUP BY movie_genre.genreId, genres.genre
+		    ORDER BY value_occurrence DESC
+		    LIMIT    10;
+			"""
+		)
+		for r in db_response:
+			genre, num = r
+			print(f"there are {num} of {genre} movies")
 
-	#highest average with condition
-	db_response = db.execute("""
-		SELECT movies.title, AVG(ratings.rating) AS avg_movie_rating
-	    FROM ratings
-	    INNER JOIN movies 
-	    ON ratings.movieId = movies.movieId
-	    GROUP BY movies.title
-	    HAVING COUNT(movies.title) > 10
-	    ORDER BY avg_movie_rating DESC
-	    LIMIT    10;
-		"""
-	)
-	for r in db_response:
-		print(r)
+		# 3 what are to top 10 highest rated movies?
 
-	# 4 what are the top 5 userers with the most ratings?
-	db_response = db.execute("""
-		SELECT userId, COUNT(userId) as num_of_ratings
-	    FROM ratings
-	    GROUP BY userId
-	    ORDER BY num_of_ratings DESC
-	    LIMIT    5;
-		"""
-	)
-	print('4 what are the top 5 userers with the most ratings?')
-	for r in db_response:
-		print(r)
+		#highest average
+		#tends to favour movies with a low number of ratings
+		db_response = DB.execute("""
+			SELECT movies.title, AVG(ratings.rating) AS avg_movie_rating
+		    FROM ratings
+		    INNER JOIN movies 
+		    ON ratings.movieId = movies.movieId
+		    GROUP BY movies.title
+		    ORDER BY avg_movie_rating DESC
+		    LIMIT    10;
+			"""
+		)
+		for r in db_response:
+			print(r)
 
-	# 5 what are the newst and the oldest ratings?
+		#highest average with condition
+		db_response = DB.execute("""
+			SELECT movies.title, AVG(ratings.rating) AS avg_movie_rating
+		    FROM ratings
+		    INNER JOIN movies 
+		    ON ratings.movieId = movies.movieId
+		    GROUP BY movies.title
+		    HAVING COUNT(movies.title) > 10
+		    ORDER BY avg_movie_rating DESC
+		    LIMIT    10;
+			"""
+		)
+		for r in db_response:
+			print(r)
 
-	#newest
-	db_response = next(db.execute("""
-		SELECT *
-	    FROM ratings
-	    WHERE timestamp = (SELECT MAX(timestamp) FROM ratings)
-		"""
-	))
-	print(f'newest rating: {db_response}')
+		# 4 what are the top 5 userers with the most ratings?
+		db_response = DB.execute("""
+			SELECT userId, COUNT(userId) as num_of_ratings
+		    FROM ratings
+		    GROUP BY userId
+		    ORDER BY num_of_ratings DESC
+		    LIMIT    5;
+			"""
+		)
+		print('4 what are the top 5 userers with the most ratings?')
+		for r in db_response:
+			print(r)
 
-	#oldest
-	db_response = next(db.execute("""
-		SELECT *
-	    FROM ratings
-	    WHERE timestamp = (SELECT MIN(timestamp) FROM ratings)
-		"""
-	))
-	print(f'oldest rating: {db_response}')
+		# 5 what are the newst and the oldest ratings?
 
-	# 6 find all movies relesed in 1990
-	db_response = db.execute("""
-		SELECT *
-	    FROM movies
-	    WHERE year = 1990
-		"""
-	)
-	for movie in db_response:
-		print(movie)
+		#newest
+		db_response = next(DB.execute("""
+			SELECT *
+		    FROM ratings
+		    WHERE timestamp = (SELECT MAX(timestamp) FROM ratings)
+			"""
+		))
+		print(f'newest rating: {db_response}')
+
+		#oldest
+		db_response = next(DB.execute("""
+			SELECT *
+		    FROM ratings
+		    WHERE timestamp = (SELECT MIN(timestamp) FROM ratings)
+			"""
+		))
+		print(f'oldest rating: {db_response}')
+
+		# 6 find all movies relesed in 1990
+		db_response = DB.execute("""
+			SELECT *
+		    FROM movies
+		    WHERE year = 1990
+			"""
+		)
+		for movie in db_response:
+			print(movie)
 
 	
 
