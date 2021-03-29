@@ -41,6 +41,28 @@ To get the answers, start Docker Desktop, go to the root directory of the projec
 	* requirements.txt - list of packages to be installed at container start 
 	* app.py - the main app
 
+### data
+
+Unziping the [ml-latest-small.zip](http://files.grouplens.org/datasets/movielens/ml-latest-small.zip "Zip file link") file produces:
+
+* README.txt
+* ratings.csv
+* movies.csv
+* links.csv
+* tags.csv
+
+ratings.csv and movies.csv files have all the information needed to answer the questions.
+
+* ratings structure:
+	userId | movieId | rating | timestamp
+	--- | --- | --- | ---
+	1 | 1 | 5.0 | 964980868
+
+* movies structure:
+	movieId | title | genres
+	--- | --- | ---
+	1 | Toy Story (1995) | Adventure|Animation|Children|Comedy|Fantasy
+
 #### database
 
 why PostgreSQL?
@@ -68,6 +90,16 @@ Tables:
 * movie_genre - models many-to-many relationship of movies and genres
 	* movieId
 	* genreId
+
+The table schema design is to high degree dictated by the answers the system needs to answer.
+
+Question "What is the most common genre?" requires our database to be able to count the occurences of each genre. 
+To achive that a separate table was created modeling the many-to-many relationship of generes and movies. Once the table is 
+populated the task of grouping the rows by the genreId and couning the groups will give us the answer.
+
+To answer "Find all movies relesed in 1990" we need to have a separate year column in movies table.
+
+
 
 #### analitics
 
@@ -111,8 +143,7 @@ Downloading and populating is controlled by a high level function ```load_data``
 Once the data is loaded it persists in the database and will be available on consequent ```docker-compose up --build``` calls.
 The ```CLEAR_AND_LOAD``` constant controlls whether the DB tables should be cleared and repopulated.
 CSV processing and DB repopulating is the most resource and time consuming porcess.
-It is advised to change the ```CLEAR_AND_LOAD``` to ```python
-False``` after the initial 
+It is advised to change the ```CLEAR_AND_LOAD``` to ```False``` after the initial run of the script.
 
 * Answers
 
