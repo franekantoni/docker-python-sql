@@ -147,7 +147,79 @@ It is advised to change the ```CLEAR_AND_LOAD``` to ```False``` after the initia
 
 * Answers
 
+1. how many movies are there in the dataset?
 
+```SQL
+SELECT COUNT(*)
+FROM movies
+```
+
+2. what is the most common genre? 
+
+```SQL
+SELECT genres.genre, COUNT(movie_genre.genreId) AS value_occurrence 
+FROM movie_genre
+INNER JOIN genres 
+ON movie_genre.genreId = genres.genreId
+GROUP BY movie_genre.genreId, genres.genre
+ORDER BY value_occurrence DESC
+LIMIT    1;
+```
+
+3. what are to top 10 highest rated movies?
+
+```SQL
+SELECT movies.title, AVG(ratings.rating) AS avg_movie_rating
+FROM ratings
+INNER JOIN movies 
+ON ratings.movieId = movies.movieId
+GROUP BY movies.title
+ORDER BY avg_movie_rating DESC
+LIMIT    10;
+```
+
+```SQL
+SELECT movies.title, AVG(ratings.rating) AS avg_movie_rating
+FROM ratings
+INNER JOIN movies 
+ON ratings.movieId = movies.movieId
+GROUP BY movies.title
+HAVING COUNT(movies.title) > {}
+ORDER BY avg_movie_rating DESC
+LIMIT    10;
+```
+
+4. what are the top 5 userers with the most ratings?
+
+```SQL
+SELECT userId, COUNT(userId) as num_of_ratings
+FROM ratings
+GROUP BY userId
+ORDER BY num_of_ratings DESC
+LIMIT    5;
+```
+
+5. what are the newst and the oldest ratings?
+
+```SQL
+SELECT *
+FROM ratings
+WHERE timestamp = (SELECT MAX(timestamp) FROM ratings)
+```
+
+```SQL
+SELECT *
+FROM ratings
+WHERE timestamp = (SELECT MIN(timestamp) FROM ratings)
+```
+
+6. find all movies relesed in 1990
+
+```SQL
+SELECT title
+FROM movies
+WHERE year = 1990
+```
 	
 
 
