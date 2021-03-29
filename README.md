@@ -33,17 +33,31 @@ To get the answers, start Docker Desktop, go to the root directory of the projec
 * docker-compose.yml - docker-compose configuration
 	
 * database
-	* using the official PostgreSQL image: postgres:13.2
-	* Dockerfile - container configuration
+	* Dockerfile - using the official PostgreSQL image: postgres:13.2
 	* create_fixtures.sql - sql script to be executed on container start
 
 * analitics
-	* using the official Python image: python:latest
-	* Dockerfile - container configuration
+	* Dockerfile - using the official Python image: python:latest
 	* requirements.txt - list of packages to be installed at container start 
 	* app.py - the main app
-		* downloads the data
-		* loads the data into db
-		* runs queries on db
+
+#### create_fixtures.sql
+
+Declares schemas for tables:
+
+* movies
+* ratings
+* genres
+* movie_genre
+
+#### app.py
+
+* downloads the data
+* loads the data into db
+* runs queries on db
+
+
+
+
 
 
