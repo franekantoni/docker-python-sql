@@ -39,7 +39,6 @@ The anwsers will get printed in your console.
 	
 * database
 	* Dockerfile - using the official PostgreSQL image: postgres:13.2
-	* create_fixtures.sql - sql script to be executed on container start
 
 * analitics
 	* Dockerfile - using the official Python image: python:latest
@@ -97,11 +96,61 @@ To achive that a separate table was created modeling the many-to-many relationsh
 populated the task of grouping the rows by the genreId and couning the groups will give us the answer.
 To answer "Find all movies relesed in 1990" we need to have a separate year column in movies table.
 
+**One of the requirements of the task was to fit all the code into one file. The tables creation commands were moved into the app.py to better fit with this request.
+Because of that, table creation commands will be discussed in the 'analitics' section.**
+
 ### analitics
 
-app.py manages loading the data from the remote server, populating the DB and provides answers to the 6 questions.
+app.py manages creating tables, loading the data from the remote server, populating the DB and provides answers to the 6 questions.
 The script connects to the DB running in separate container with sqlalchemy library.
-the app.py file is one and only Python file. It contains all relevant code.
+**The app.py contains all relevant code.**
+
+#### Tables creation
+
+For better readability each table creation command is contained within a separate function:
+
+```python
+def create_movies_table():
+	DB.execute("""
+		CREATE TABLE IF NOT EXISTS movies (
+		    movieId INT PRIMARY KEY,
+		    title TEXT,
+		    year INT
+		);
+		"""
+	)
+
+def create_genres_table():
+	DB.execute("""
+		CREATE TABLE IF NOT EXISTS genres(
+		  genreId SERIAL PRIMARY KEY,
+		  genre TEXT NOT NULL
+		);
+		"""
+	)
+
+def create_movie_genre_table():
+	DB.execute("""
+		CREATE TABLE IF NOT EXISTS movie_genre(
+		  movieId INT,
+		  genreId INT,
+		  FOREIGN KEY(movieId) REFERENCES movies(movieId),
+		  FOREIGN KEY(genreId) REFERENCES genres(genreId),
+		  PRIMARY KEY (movieId, genreId)
+		);
+	""")
+
+def create_ratings_table():
+	DB.execute("""
+		CREATE TABLE IF NOT EXISTS ratings(
+		  userId INT,
+		  movieId INT,
+		  rating FLOAT,
+		  timestamp BIGINT,
+		  FOREIGN KEY(movieId) REFERENCES movies(movieId)
+		);
+	""")
+```
 
 #### Downloading
 
