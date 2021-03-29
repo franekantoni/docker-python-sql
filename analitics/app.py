@@ -55,7 +55,7 @@ def clean_title(title_date, pattern):
 		title = title_date
 	return (title, int(year))
 
-def load_movies(file_path):
+def populate_movies(file_path):
 	print('loading movies into db...')
 	genres_dict = {}
 	with open(file_path, 'r') as csvfile:
@@ -98,7 +98,7 @@ def load_movies(file_path):
 				)
 	print('movies loaded.')
 
-def load_ratings(file_path):
+def populate_ratings(file_path):
 	print('loading ratings into db...')
 	connection = DB.raw_connection()
 	cursor = connection.cursor()
@@ -122,8 +122,8 @@ if __name__ == '__main__':
 
 		clear_tables(['ratings', 'movies', 'genres', 'movie_genre'])
 
-		load_movies(f"tmp/{DIR_NAME}/{movies_file}")
-		load_ratings(f"tmp/{DIR_NAME}/{ratings_file}")
+		populate_movies(f"tmp/{DIR_NAME}/{movies_file}")
+		populate_ratings(f"tmp/{DIR_NAME}/{ratings_file}")
 
 
 		# 1 how many movies are there in the dataset?
