@@ -199,6 +199,26 @@ if __name__ == '__main__':
 	for r in db_response:
 		print(r)
 
+	# 5 what are the newst and the oldest ratings?
+
+	#newest
+	db_response = next(db.execute("""
+		SELECT *
+	    FROM ratings
+	    WHERE timestamp = (SELECT MAX(timestamp) FROM ratings)
+		"""
+	))
+	print(f'newest rating: {db_response}')
+
+	#oldest
+	db_response = next(db.execute("""
+		SELECT *
+	    FROM ratings
+	    WHERE timestamp = (SELECT MIN(timestamp) FROM ratings)
+		"""
+	))
+	print(f'oldest rating: {db_response}')
+	
 
 
 
