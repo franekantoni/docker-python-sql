@@ -63,7 +63,7 @@ ratings.csv and movies.csv files have all the information needed to answer the q
 	--- | --- | ---
 	1 | Toy Story (1995) | Adventure\|Animation\|Children\|Comedy\|Fantasy
 
-#### database
+### database
 
 why PostgreSQL?
 
@@ -91,17 +91,13 @@ Tables:
 	* movieId
 	* genreId
 
-The table schema design is to high degree dictated by the answers the system needs to answer.
-
+The table schema design is influenced by the answers the system needs to answer.
 Question "What is the most common genre?" requires our database to be able to count the occurences of each genre. 
 To achive that a separate table was created modeling the many-to-many relationship of generes and movies. Once the table is 
 populated the task of grouping the rows by the genreId and couning the groups will give us the answer.
-
 To answer "Find all movies relesed in 1990" we need to have a separate year column in movies table.
 
-
-
-#### analitics
+### analitics
 
 app.py manages loading the data from the remote server, populating the DB and provides answers to the 6 questions.
 The script connects to the DB running in separate container with sqlalchemy library.
@@ -130,7 +126,9 @@ The script connects to the DB running in separate container with sqlalchemy libr
 	(movieId, genreId) relation to movie_genre table
 	"""
 	```
-
+To save the data to the database we we need to: 
+* split the second value of each row into a proper title and a year.
+* split the third value of each row into a list of genres.
 
 	```python
 	process_ratings(file_path):
@@ -138,6 +136,8 @@ The script connects to the DB running in separate container with sqlalchemy libr
 	Saves (userid, movieid, rating, timestamp) to ratings table
 	"""
 	```
+Structure of data in ratings.csv file allows to transfer the data with ```COPY``` command
+
 
 Downloading and populating is controlled by a high level function ```load_data```.
 Once the data is loaded it persists in the database and will be available on consequent ```docker-compose up --build``` calls.
