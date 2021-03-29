@@ -1,9 +1,10 @@
-import time
-import random
 import csv
 import re
-
+from io import BytesIO
+from os import listdir
 from sqlalchemy import create_engine
+from urllib.request import urlopen
+from zipfile import ZipFile
 
 DB_NAME = 'database'
 DB_USER = 'username'
@@ -18,14 +19,14 @@ DB = create_engine(DB_STRING)
 ZIP_URL = 'http://files.grouplens.org/datasets/movielens/ml-latest-small.zip'
 DIR_NAME = 'ml-latest-small'
 
-
-def add_new_genre(genre_name):
-	# Insert a new number into the 'numbers' table.
-	DB.execute("""
-		INSERT INTO genres (genre)  
-		VALUES ('{}');
-		""".format(genre_name)
-	)
+def download_data(zip_url, dir_name, file_names):
+	with urlopen(zip_url) as zipresp:
+		with ZipFile(BytesIO(zipresp.read())) as zfile:
+			zfile.extractall('tmp/')
+	if DIR_NAME in listdir('tmp/'):
+		if all([file_name in listdir('tmp/ml-latest-small') for file_name in file_names]):
+			return True
+	return False
 
 def clear_tables(table_names):
 	for table_name in table_names:
@@ -34,28 +35,12 @@ def clear_tables(table_names):
 			""".format(table_name)
 		)
 
-def get_last_row():
-	# Retrieve the last number inserted inside the 'numbers'
-
-	result_set = DB.execute("""
-		SELECT genre
-		FROM genres 
-		WHERE genreId >= (SELECT max(genreId) FROM genres)
-		LIMIT 1"""
-	)  
-
-	for (r) in result_set:  
-		return r[0]
-
-def load_ratings(file_path):
-	print('loading ratings into db...')
-	connection = DB.raw_connection()
-	cursor = connection.cursor()
-	with open(file_path, 'r') as f:
-		command = 'COPY ratings(userid, movieid, rating, timestamp) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
-		cursor.copy_expert(command, f)
-		connection.commit()
-	print('ratings loaded.')
+def add_new_genre(genre_name):
+	DB.execute("""
+		INSERT INTO genres (genre)  
+		VALUES ('{}');
+		""".format(genre_name)
+	)
 
 def clean_title(title_date, pattern):
 	#should return one date
@@ -69,7 +54,6 @@ def clean_title(title_date, pattern):
 		year = 0
 		title = title_date
 	return (title, int(year))
-
 
 def load_movies(file_path):
 	print('loading movies into db...')
@@ -114,20 +98,15 @@ def load_movies(file_path):
 				)
 	print('movies loaded.')
 
-from io import BytesIO
-from urllib.request import urlopen
-from zipfile import ZipFile
-from os import listdir
-
-def download_data(zip_url, dir_name, file_names):
-	with urlopen(zip_url) as zipresp:
-		with ZipFile(BytesIO(zipresp.read())) as zfile:
-			zfile.extractall('tmp/')
-	if DIR_NAME in listdir('tmp/'):
-		if all([file_name in listdir('tmp/ml-latest-small') for file_name in file_names]):
-			return True
-	return False
-
+def load_ratings(file_path):
+	print('loading ratings into db...')
+	connection = DB.raw_connection()
+	cursor = connection.cursor()
+	with open(file_path, 'r') as f:
+		command = 'COPY ratings(userid, movieid, rating, timestamp) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+		cursor.copy_expert(command, f)
+		connection.commit()
+	print('ratings loaded.')
 
 if __name__ == '__main__':
 
@@ -145,10 +124,6 @@ if __name__ == '__main__':
 
 		load_movies(f"tmp/{DIR_NAME}/{movies_file}")
 		load_ratings(f"tmp/{DIR_NAME}/{ratings_file}")
-
-
-
-
 
 
 		# 1 how many movies are there in the dataset?
