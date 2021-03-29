@@ -101,43 +101,105 @@ To answer "Find all movies relesed in 1990" we need to have a separate year colu
 
 app.py manages loading the data from the remote server, populating the DB and provides answers to the 6 questions.
 The script connects to the DB running in separate container with sqlalchemy library.
+the app.py file is one and only Python file. It contains all relevant code.
 
 #### Downloading
 
+```download_data``` funciton handles the downloading, extracting and saving csv files into the /tmp folder.
+
 ```python
-	download_data(zip_url, dir_name, file_names):
+def download_data(zip_url, dir_name, file_names):
 	"""
 	Downloads zip from remote url,
 	saves csv files to tmp/
 	returns True if all file_names were found in the unziped folder
 	returns False if one or more of file_names were not found
 	"""
+	#download zip from remote url
+	with urlopen(zip_url) as zipresp:
+		with ZipFile(BytesIO(zipresp.read())) as zfile:
+			zfile.extractall("tmp/")
+	#check if all file_names in tmp
+	if DIR_NAME in listdir("tmp/"):
+		if all([file_name in listdir("tmp/ml-latest-small") for file_name in file_names]):
+			return True
+	return False
 ```
-
 
 #### Populating DB
 
+To save data from the movies.csv file we we need to: 
+* split the second value of each row into a proper title and a year.
+* split the third value of each row into a list of genres.
+
+```process_movies``` function transforms and saves data into the database 
+
 ```python
-	process_movies(file_path):
+def process_movies(file_path):
 	"""
 	Saves:
 	(movieId, title, year) to movies table,
 	(genre) to genres table,
 	(movieId, genreId) relation to movie_genre table
 	"""
+	print("loading movies into db...")
+	genres_dict = {}
+	with open(file_path, "r") as csvfile:
+
+		reader = csv.reader(csvfile)
+		next(reader, None)  # skip the headers
+
+		date_pattern = re.compile(r"\((\d+)\)")
+
+		for row in reader:
+			movie_id, title_date, genres_ = row
+			movie_id = int(movie_id)
+			title, year = clean_title(title_date, date_pattern)
+			genres = genres_.split('|')
+			#save row to movies
+			DB.execute("""
+				INSERT INTO movies (movieId, title, year)  
+				VALUES ({}, '{}', {});
+				""".format(movie_id, title.replace("'", " "), year)
+			)
+
+			#save genre
+			for genre in genres:
+				if not genres_dict.get(genre):
+					result = DB.execute("""
+						INSERT INTO genres (genre)  
+						VALUES ('{}')
+						RETURNING genres.genreid;
+						""".format(genre)
+					)
+					genre_id = next(result)[0]
+					genres_dict[genre] = genre_id
+
+				DB.execute("""
+					INSERT INTO movie_genre (movieId, genreId)  
+					VALUES ({}, {});
+					""".format(movie_id, genres_dict[genre])
+				)
+	print("movies loaded.")
 ```
-To save the data to the database we we need to: 
-* split the second value of each row into a proper title and a year.
-* split the third value of each row into a list of genres.
+
+Structure of data in ratings.csv file allows to transfer the data with ```COPY``` command.
+```process_ratings``` function and saves ratings into the database.
 
 ```python
-	process_ratings(file_path):
+def process_ratings(file_path):
 	"""
 	Saves (userid, movieid, rating, timestamp) to ratings table
 	"""
+	print("loading ratings into db...")
+	connection = DB.raw_connection()
+	cursor = connection.cursor()
+	with open(file_path, "r") as f:
+		command = "COPY ratings(userid, movieid, rating, timestamp) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)"
+		cursor.copy_expert(command, f)
+		connection.commit()
+	print("ratings loaded.")
 ```
-Structure of data in ratings.csv file allows to transfer the data with ```COPY``` command
-
 
 Downloading and populating is controlled by a high level function ```load_data```.
 Once the data is loaded it persists in the database and will be available on consequent ```docker-compose up --build``` calls.
