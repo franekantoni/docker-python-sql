@@ -31,7 +31,7 @@ cd docker-python-sql
 docker-compose up --build
 ```
 
-The awsers will get printed in your console.
+The anwsers will get printed in your console.
 
 ### Structure
 
@@ -69,11 +69,6 @@ ratings.csv and movies.csv files have all the information needed to answer the q
 	1 | Toy Story (1995) | Adventure\|Animation\|Children\|Comedy\|Fantasy
 
 ### database
-
-why PostgreSQL?
-
-* fully open-source - free
-* well supported by the community
 
 Tables:
 
@@ -198,9 +193,9 @@ It is advised to change the ```CLEAR_AND_LOAD``` to ```False``` after the initia
 	LIMIT    10;
 	```
 
-	There are more imporvemtns for the 'highest rated' metric. One of them would be to normalize the ratings by dividing each rating by an average of all of the ratings a user gave. I would advise to specify the metric more clearly.
+	There are more improvements for the 'highest rated' metric. One of them would be to normalize the ratings by dividing each rating by an average of all of the ratings a user gave. I would advise to specify the metric more clearly.
 
-4. what are the top 5 userers with the most ratings?
+4. what are the top 5 users with the most ratings?
 
 	```SQL
 	SELECT userId, COUNT(userId) as num_of_ratings
