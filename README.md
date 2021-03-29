@@ -104,7 +104,7 @@ The script connects to the DB running in separate container with sqlalchemy libr
 
 #### Downloading
 
-	```python
+```python
 	download_data(zip_url, dir_name, file_names):
 	"""
 	Downloads zip from remote url,
@@ -112,12 +112,12 @@ The script connects to the DB running in separate container with sqlalchemy libr
 	returns True if all file_names were found in the unziped folder
 	returns False if one or more of file_names were not found
 	"""
-	```
+```
 
 
 #### Populating DB
 
-	```python
+```python
 	process_movies(file_path):
 	"""
 	Saves:
@@ -125,7 +125,7 @@ The script connects to the DB running in separate container with sqlalchemy libr
 	(genre) to genres table,
 	(movieId, genreId) relation to movie_genre table
 	"""
-	```
+```
 To save the data to the database we we need to: 
 * split the second value of each row into a proper title and a year.
 * split the third value of each row into a list of genres.
