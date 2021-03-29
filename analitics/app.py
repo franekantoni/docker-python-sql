@@ -154,8 +154,43 @@ if __name__ == '__main__':
 		genre, num = r
 		print(f"there are {num} of {genre} movies")
 
+	#what are to top 10 highest rated movies?
+
+	#highest average
+	#tends to favour movies with a low number of ratings
+	db_response = db.execute("""
+		SELECT movies.title, AVG(ratings.rating) AS avg_movie_rating
+	    FROM ratings
+	    INNER JOIN movies 
+	    ON ratings.movieId = movies.movieId
+	    GROUP BY movies.title
+	    ORDER BY avg_movie_rating DESC
+	    LIMIT    10;
+		"""
+	)
+	for r in db_response:
+		# genre, num = r
+		print(r)
+
+	#highest average with condition
+	db_response = db.execute("""
+		SELECT movies.title, AVG(ratings.rating) AS avg_movie_rating
+	    FROM ratings
+	    INNER JOIN movies 
+	    ON ratings.movieId = movies.movieId
+	    GROUP BY movies.title
+	    HAVING COUNT(movies.title) > 10
+	    ORDER BY avg_movie_rating DESC
+	    LIMIT    10;
+		"""
+	)
+	for r in db_response:
+		# genre, num = r
+		print(r)
+
 	
 
+	
 
 
 
