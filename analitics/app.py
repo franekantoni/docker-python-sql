@@ -139,8 +139,22 @@ if __name__ == '__main__':
 	))
 	print('how many movies are there in the dataset?', db_response)
 	
-	
+	#what is the most common genre? 
+	db_response = db.execute("""
+		SELECT genres.genre, COUNT(movie_genre.genreId) AS value_occurrence 
+	    FROM movie_genre
+	    INNER JOIN genres 
+	    ON movie_genre.genreId = genres.genreId
+	    GROUP BY movie_genre.genreId, genres.genre
+	    ORDER BY value_occurrence DESC
+	    LIMIT    10;
+		"""
+	)
+	for r in db_response:
+		genre, num = r
+		print(f"there are {num} of {genre} movies")
 
+	
 
 
 
