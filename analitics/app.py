@@ -37,6 +37,52 @@ def download_data(zip_url, dir_name, file_names):
 			return True
 	return False
 
+def drop_table(table):
+	DB.execute("""
+		DROP TABLE IF EXISTS {} CASCADE
+	""").format(table)
+
+def create_movies_table():
+	DB.execute("""
+		CREATE TABLE IF NOT EXISTS movies (
+		    movieId INT PRIMARY KEY,
+		    title TEXT,
+		    year INT
+		);
+		"""
+	)
+
+def create_genres_table():
+	DB.execute("""
+		CREATE TABLE IF NOT EXISTS genres(
+		  genreId SERIAL PRIMARY KEY,
+		  genre TEXT NOT NULL
+		);
+		"""
+	)
+
+def create_movie_genre_table():
+	DB.execute("""
+		CREATE TABLE IF NOT EXISTS movie_genre(
+		  movieId INT,
+		  genreId INT,
+		  FOREIGN KEY(movieId) REFERENCES movies(movieId),
+		  FOREIGN KEY(genreId) REFERENCES genres(genreId),
+		  PRIMARY KEY (movieId, genreId)
+		);
+	""")
+
+def create_ratings_table():
+	DB.execute("""
+		CREATE TABLE IF NOT EXISTS ratings(
+		  userId INT,
+		  movieId INT,
+		  rating FLOAT,
+		  timestamp BIGINT,
+		  FOREIGN KEY(movieId) REFERENCES movies(movieId)
+		);
+	""")
+
 def clear_tables(table_names):
 	"""clears the SQL tables"""
 	for table_name in table_names:
@@ -149,6 +195,12 @@ def load_data():
 if __name__ == "__main__":
 
 	if CLEAR_AND_LOAD:
+		#create tables
+		create_movies_table()
+		create_genres_table()
+		create_movie_genre_table()
+		create_ratings_table()
+		#download data, populate tables
 		load_data()
 
 	# 1 how many movies are there in the dataset?
