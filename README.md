@@ -167,7 +167,7 @@ LIMIT    1;
 ```
 
 3. what are to top 10 highest rated movies?
-
+This is an ambivalent question to some extend. There is not metric provided, so the most obvious one is the average of all the ratings a movie got:
 ```SQL
 SELECT movies.title, AVG(ratings.rating) AS avg_movie_rating
 FROM ratings
@@ -178,16 +178,20 @@ ORDER BY avg_movie_rating DESC
 LIMIT    10;
 ```
 
+But this metric favours movies with a very low number of ratings. Low sampling size makes it easy for groups to achive a very high or very low avg socre.
+One way of combating this problem would be to set a minimum number or ratings a movie needs to have to be taken into consideration in this ranking:
 ```SQL
 SELECT movies.title, AVG(ratings.rating) AS avg_movie_rating
 FROM ratings
 INNER JOIN movies 
 ON ratings.movieId = movies.movieId
 GROUP BY movies.title
-HAVING COUNT(movies.title) > {}
+HAVING COUNT(movies.title) > 12
 ORDER BY avg_movie_rating DESC
 LIMIT    10;
 ```
+
+There are more imporvemtns for the 'highest rated' metric. One of them would be to normalize the ratings by dividing each rating by an average of all of the ratings a user gave. I would advise to specify the metric more clearly.
 
 4. what are the top 5 userers with the most ratings?
 
@@ -198,6 +202,7 @@ GROUP BY userId
 ORDER BY num_of_ratings DESC
 LIMIT    5;
 ```
+There is no users file, so we cannot match the user ids with any personal information. This Query will return only the ids and number of ratings for the top 5 users.
 
 5. what are the newst and the oldest ratings?
 
