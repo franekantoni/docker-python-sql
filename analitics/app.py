@@ -218,6 +218,17 @@ if __name__ == '__main__':
 		"""
 	))
 	print(f'oldest rating: {db_response}')
+
+	# 6 find all movies relesed in 1990
+	db_response = db.execute("""
+		SELECT *
+	    FROM movies
+	    WHERE year = 1990
+		"""
+	)
+	for movie in db_response:
+		print(movie)
+
 	
 
 
