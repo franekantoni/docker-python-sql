@@ -28,4 +28,22 @@ To get the answers, start Docker Desktop, go to the root directory of the projec
 
 ```docker-compose up --build```
 
+### Structure
+
+* docker-compose.yml - docker-compose configuration
+	
+* database
+	* using the official PostgreSQL image: postgres:13.2
+	* Dockerfile - container configuration
+	* create_fixtures.sql - sql script to be executed on container start
+
+* analitics
+	* using the official Python image: python:latest
+	* Dockerfile - container configuration
+	* requirements.txt - list of packages to be installed at container start 
+	* app.py - the main app
+		* downloads the data
+		* loads the data into db
+		* runs queries on db
+
 
