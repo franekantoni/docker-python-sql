@@ -18,7 +18,7 @@ DB = create_engine(DB_STRING)
 
 ZIP_URL = 'http://files.grouplens.org/datasets/movielens/ml-latest-small.zip'
 DIR_NAME = 'ml-latest-small'
-CLEAR_AND_LOAD = False
+CLEAR_AND_LOAD = True
 
 def download_data(zip_url, dir_name, file_names):
 	with urlopen(zip_url) as zipresp:
