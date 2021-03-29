@@ -5,8 +5,8 @@ The goal is to create a system for loading and querying the movieLens data.
 
 ### Requirements
 
-⋅⋅* [Docker](https://www.docker.com/ "Docker homepage")
-⋅⋅* [Docker-Compose](https://docs.docker.com/compose/ "Docker-Compose docs")
+* [Docker](https://www.docker.com/ "Docker homepage")
+* [Docker-Compose](https://docs.docker.com/compose/ "Docker-Compose docs")
 
 ### Quick start
 
