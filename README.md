@@ -180,7 +180,7 @@ It is advised to change the ```CLEAR_AND_LOAD``` to ```False``` after the initia
 	LIMIT    10;
 	```
 
-	But this metric favours movies with a very low number of ratings. Low sampling size makes it easy for groups to achive a very high or very low avg socre.
+	But this metric favours movies with a very low number of ratings. Low sampling size makes it easy for groups to achive a very high or very low average socre.
 	One way of combating this problem would be to set a minimum number or ratings a movie needs to have to be taken into consideration in this ranking:
 	```SQL
 	SELECT movies.title, AVG(ratings.rating) AS avg_movie_rating
