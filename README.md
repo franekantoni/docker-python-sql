@@ -75,7 +75,7 @@ app.py manages loading the data from the remote server, populating the database 
 
 * Downloading
 
-	```
+	```python
 	def download_data(zip_url, dir_name, file_names):
 	"""
 	Downloads zip from remote url,
@@ -87,7 +87,7 @@ app.py manages loading the data from the remote server, populating the database 
 
 * Populating DB
 
-	```
+	```python
 	def process_movies(file_path):
 	"""
 	Saves:
@@ -98,7 +98,7 @@ app.py manages loading the data from the remote server, populating the database 
 	```
 
 
-	```
+	```python
 	def process_ratings(file_path):
 	"""
 	Saves (userid, movieid, rating, timestamp) to ratings table
