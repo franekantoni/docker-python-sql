@@ -71,12 +71,13 @@ Tables:
 
 #### analitics
 
-app.py manages loading the data from the remote server, populating the database and querying.
+app.py manages loading the data from the remote server, populating the DB and provides answers to the 6 questions.
+The script connects to the DB running in separate container with sqlalchemy library.
 
 * Downloading
 
 	```python
-	def download_data(zip_url, dir_name, file_names):
+	download_data(zip_url, dir_name, file_names):
 	"""
 	Downloads zip from remote url,
 	saves csv files to tmp/
@@ -85,10 +86,11 @@ app.py manages loading the data from the remote server, populating the database 
 	"""
 	```
 
+
 * Populating DB
 
 	```python
-	def process_movies(file_path):
+	process_movies(file_path):
 	"""
 	Saves:
 	(movieId, title, year) to movies table,
@@ -99,13 +101,22 @@ app.py manages loading the data from the remote server, populating the database 
 
 
 	```python
-	def process_ratings(file_path):
+	process_ratings(file_path):
 	"""
 	Saves (userid, movieid, rating, timestamp) to ratings table
 	"""
 	```
 
-* Querying
+Downloading and populating is controlled by a high level function ```load_data```.
+Once the data is loaded it persists in the database and will be available on consequent ```docker-compose up --build``` calls.
+The ```CLEAR_AND_LOAD``` constant controlls whether the DB tables should be cleared and repopulated.
+CSV processing and DB repopulating is the most resource and time consuming porcess.
+It is advised to change the ```CLEAR_AND_LOAD``` to ```python
+False``` after the initial 
+
+* Answers
+
+
 	
 
 
