@@ -36,6 +36,9 @@ The anwsers will get printed in your console.
 ### Structure
 
 * docker-compose.yml - docker-compose configuration
+	To ensure a connection between databse and the main app the restart option is set to 'on-failure' on the 'analitics' container.
+	It could be the case that the script tries to connect to PostgreSQL before it is up. In such a case the app.py restarts and tries again until the connection is established.
+	This configuration makes the 'analitics' container restart every time it raises an error, whether or not it is caused by a failure to connect with the DB.
 	
 * database
 	* Dockerfile - using the official PostgreSQL image: postgres:13.2
@@ -44,6 +47,7 @@ The anwsers will get printed in your console.
 	* Dockerfile - using the official Python image: python:latest
 	* requirements.txt - list of packages to be installed at container start 
 	* app.py - the main app
+
 
 ### data
 
@@ -96,7 +100,7 @@ To achive that a separate table was created modeling the many-to-many relationsh
 populated the task of grouping the rows by the genreId and couning the groups will give us the answer.
 To answer "Find all movies relesed in 1990" we need to have a separate year column in movies table.
 
-**One of the requirements of the task was to fit all the code into one file. The tables creation commands were moved into the app.py to better fit with this request.
+**One of the requirements of the task was to put all the relevant code into one file. The tables creation commands were moved into the app.py to better fit with this request.
 Because of that, table creation commands will be discussed in the 'analitics' section.**
 
 ### analitics
