@@ -37,7 +37,7 @@ The anwsers will get printed in your console.
 
 * docker-compose.yml - docker-compose configuration
 	
-	To ensure a connection between databse and the main app the restart option is set to 'on-failure' on the 'analitics' container.
+	To ensure a connection between databse and the main app get established the restart option is set to 'on-failure' on the 'analitics' container.
 	It could be the case that the script tries to connect to PostgreSQL before it is up. In such a case the app.py restarts and tries again until the connection is established.
 	This configuration makes the 'analitics' container restart every time it raises an error, whether or not it is caused by a failure to connect with the DB.
 	
